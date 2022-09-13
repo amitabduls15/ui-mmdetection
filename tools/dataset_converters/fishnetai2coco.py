@@ -7,11 +7,12 @@ from matplotlib import pyplot as plt
 from tqdm import tqdm
 import pandas as pd
 
-csv_data = 'D:/PROJECT/ICU/PYTHON/FishMoonProject/Image Recognition/Data/Mini FishNet Datasets/foid_labels_v100.csv'
-image_data = 'D:/PROJECT/ICU\PYTHON/FishMoonProject/Image Recognition/Data/Mini FishNet Datasets/images'
+csv_data = '/run/media/amitabduls/data/PROJECT/ICU/PYTHON/FishMoonProject/Image Recognition/Data/Mini FishNet Datasets/foid_labels_v100.csv'
+image_data = '/run/media/amitabduls/data/PROJECT/ICU/PYTHON/FishMoonProject/Image Recognition/Data/Mini FishNet Datasets/images'
 type_img = '.jpg'
 
-df = pd.read_csv(csv_data)
+df = pd.read_csv(csv_data, delimiter=',')
+print(df.head())
 df_train = df[df['train'] == True]
 df_val = df[df['val'] == True]
 df_test = df[df['test'] == True]
@@ -46,8 +47,8 @@ def bbox_convert_to_fo_format(filepath: str, bbox):
     return bbox
 
 
-def convert_fishnet_to_coco(df, src_img=image_data, img_type=type_img):
-    name_datasets = 'fishnet-img'
+def convert_fishnet_to_coco(df, name_datasets, src_img=image_data, img_type=type_img):
+    # name_datasets = 'fishnet-img-small'
 
     # Create dataset
     try:
@@ -62,7 +63,7 @@ def convert_fishnet_to_coco(df, src_img=image_data, img_type=type_img):
 
     img_id_uniques = df['img_id'].unique()
     for idx, img_id in enumerate(img_id_uniques):
-        df_bbox = df[df['img_id'] == img_id][['x_min', 'x_max', 'y_min', 'y_max', 'label_l2']]
+        df_bbox = df[df['img_id'] == img_id][['x_min', 'x_max', 'y_min', 'y_max', 'label_l1']]
         # print(df_bbox)
 
         filename_img = f"{img_id}{img_type}"
@@ -74,7 +75,7 @@ def convert_fishnet_to_coco(df, src_img=image_data, img_type=type_img):
         print(f'processing {idx + 1}/{len(img_id_uniques)} {filename_img}')
 
         for row in df_bbox.iterrows():
-            label = row[1]['label_l2']
+            label = row[1]['label_l1']
             labels.append(label)
 
             x_min = row[1]['x_min']
@@ -107,12 +108,11 @@ def export_datasets(datasets, export_dir, label_field='ground_truth'):
 
 
 def main(out_data):
-
-    train_datasets, train_labels = convert_fishnet_to_coco(df_train)
+    train_datasets, train_labels = convert_fishnet_to_coco(df_train, 'train-datasets')
     print(f"train labels {train_labels}")
-    val_datasets, val_labels = convert_fishnet_to_coco(df_val)
+    val_datasets, val_labels = convert_fishnet_to_coco(df_val, 'val-datasets')
     print(f"val labels {val_labels}")
-    test_datasets, test_labels = convert_fishnet_to_coco(df_test)
+    test_datasets, test_labels = convert_fishnet_to_coco(df_test, 'test-datasets')
     print(f"test labels {test_labels}")
 
     # Exporting Data
@@ -124,5 +124,6 @@ def main(out_data):
 
 
 if __name__ == '__main__':
-    OUT_DATA = "./data/coco-fishnet"
-    main(OUT_DATA)
+    OUT_DATA = "./data/coco-fishnet-small"
+    # main(OUT_DATA)
+    print(df_train['label_l1'].unique())
