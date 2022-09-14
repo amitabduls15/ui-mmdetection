@@ -1,6 +1,6 @@
 _base_ = ['./faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py']
 
-load_from = 'checkpoints/faster_rcnn_r50_caffe_fpn_mstrain_3x_coco_20210526_095054-1f77628b.pth'
+# load_from = 'checkpoints/faster_rcnn_r50_caffe_fpn_mstrain_3x_coco_20210526_095054-1f77628b.pth'
 auto_resume = True
 runner = dict(type='EpochBasedRunner', max_epochs=20)
 workflow = [('train', 1), ('val', 1)]
